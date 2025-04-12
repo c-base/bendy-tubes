@@ -64,7 +64,7 @@ export default function MillimeterCalculator() {
   }, [debouncedValues]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24 bg-gray-50">
+    <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export default function MillimeterCalculator() {
           </div>
 
           {/* Fixed height result container */}
-          <div className="h-32 flex flex-col justify-center items-center border rounded-lg p-4 bg-gray-50">
+          <div className="h-32 flex flex-col justify-center items-center border rounded-lg p-4 bg-muted">
             <div className="text-sm text-muted-foreground mb-2">
               Track curve radius
             </div>
