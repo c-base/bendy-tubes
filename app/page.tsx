@@ -155,7 +155,7 @@ export default function MillimeterCalculator() {
                   <span className="text-xl font-bold">
                     {
                       resultOuter !== null
-                        ? resultOuter.toLocaleString(undefined, {
+                        ? resultOuter.toLocaleString("en-US", {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
                           })
