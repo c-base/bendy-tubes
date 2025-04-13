@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -28,30 +28,16 @@ export default function CurveRadiusCalculator() {
   const [pipeRadius, setPipeRadius] = useState<number | null>(
     PIPE_DEFAULT_RADIUS_MM
   );
-  const [debounced, setDebounced] = useState<{
-    measured: number | null;
-    pipeRadius: number | null;
-  }>({
-    measured: null,
-    pipeRadius: PIPE_DEFAULT_RADIUS_MM,
-  });
 
   // Reset second input to default value
   const handleReset = () => {
     setPipeRadius(PIPE_DEFAULT_RADIUS_MM);
   };
 
-  // Debounce both input values
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounced({
-        measured,
-        pipeRadius,
-      });
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [measured, pipeRadius]);
+  const debounced = {
+    measured: useDebounced(measured, 500),
+    pipeRadius: useDebounced(pipeRadius, 500),
+  };
 
   // Calculate centimeters when debounced values change
   const [resultInner, resultOuter] = useMemo(() => {
@@ -179,4 +165,17 @@ export default function CurveRadiusCalculator() {
       </Card>
     </main>
   );
+}
+
+function useDebounced<T>(input: T, delay: number) {
+  const [output, setOutput] = useState<T>(input);
+  // Debounce both input values
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOutput(input);
+    }, delay);
+
+    return () => clearTimeout(timer);
+  }, [input, delay]);
+  return output;
 }
