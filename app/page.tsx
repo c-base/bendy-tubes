@@ -23,12 +23,14 @@ function calculateRadius(measured: number) {
   return radius;
 }
 
-export default function MillimeterCalculator() {
+export default function CurveRadiusCalculator() {
   const [measured, setMeasured] = useState<number | null>(null);
-  const [pipeRadius, setPipeRadius] = useState<number>(PIPE_DEFAULT_RADIUS_MM);
-  const [debouncedValues, setDebouncedValues] = useState<{
+  const [pipeRadius, setPipeRadius] = useState<number | null>(
+    PIPE_DEFAULT_RADIUS_MM
+  );
+  const [debounced, setDebounced] = useState<{
     measured: number | null;
-    pipeRadius: number;
+    pipeRadius: number | null;
   }>({
     measured: null,
     pipeRadius: PIPE_DEFAULT_RADIUS_MM,
@@ -42,26 +44,34 @@ export default function MillimeterCalculator() {
   // Debounce both input values
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedValues({
-        measured: measured,
-        pipeRadius: pipeRadius,
+      setDebounced({
+        measured,
+        pipeRadius,
       });
-    }, 500); // 500ms debounce delay
+    }, 300);
 
     return () => clearTimeout(timer);
   }, [measured, pipeRadius]);
 
   // Calculate centimeters when debounced values change
   const [resultInner, resultOuter] = useMemo(() => {
-    const { measured, pipeRadius } = debouncedValues;
+    const { measured, pipeRadius } = debounced;
 
-    if (measured === null || measured === 0) {
+    if (measured === null || pipeRadius === null || measured === 0) {
       // If measured value is empty, we don't show anything
+      // Same if it's 0, because then the curve radius would be infinite
       return [null, null] as const;
     }
     const radius = calculateRadius(measured);
     return [radius - pipeRadius, radius] as const;
-  }, [debouncedValues]);
+  }, [debounced.measured, debounced.pipeRadius]);
+
+  const tryParseFloat = (text: string): number | null => {
+    if (!text) return null;
+    const parsed = Number.parseFloat(text);
+    if (Number.isNaN(parsed)) return null;
+    return parsed;
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-4 md:p-24">
@@ -85,9 +95,7 @@ export default function MillimeterCalculator() {
                 type="number"
                 placeholder="Readout from measurement device"
                 value={measured ?? ""}
-                onChange={(e) =>
-                  setMeasured(e.target.value ? Number(e.target.value) : null)
-                }
+                onChange={(e) => setMeasured(tryParseFloat(e.target.value))}
                 step="any"
                 min="0"
               />
@@ -109,10 +117,10 @@ export default function MillimeterCalculator() {
               <Input
                 id="secondValue"
                 type="number"
-                value={pipeRadius}
-                onChange={(e) =>
-                  setPipeRadius(e.target.value ? Number(e.target.value) : 0)
-                }
+                value={pipeRadius ?? ""}
+                onChange={(e) => {
+                  setPipeRadius(tryParseFloat(e.target.value));
+                }}
                 step="any"
                 min="0"
               />
