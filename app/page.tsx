@@ -83,7 +83,7 @@ export default function MillimeterCalculator() {
               <Input
                 id="firstValue"
                 type="number"
-                placeholder="Enter first value"
+                placeholder="Readout from measurement device"
                 value={measured ?? ""}
                 onChange={(e) =>
                   setMeasured(e.target.value ? Number(e.target.value) : null)
